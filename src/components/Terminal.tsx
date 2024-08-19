@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef , useEffect } from "react";
 
 
 interface Command {
@@ -6,6 +6,7 @@ interface Command {
   description: string;
 }
 const Terminal: React.FC = () => {
+
     const [input, setInput] = useState<string>("");
     const [history, setHistory] = useState<Command[]>([
       {
@@ -14,7 +15,10 @@ const Terminal: React.FC = () => {
       }
     ]);
     const [commandHistory, setCommandHistory] = useState<string[]>([]);
-    const inputRef = useRef<HTMLInputElement>(null);    
+    const inputRef = useRef<HTMLInputElement>(null);   
+    useEffect(()=>{
+      inputRef.current?.focus();
+    },[]) 
     const handleCommandSubmit = (e: React.FormEvent) => {
       e.preventDefault();
       handleCommand(input);
