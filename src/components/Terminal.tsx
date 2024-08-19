@@ -14,7 +14,6 @@ const Terminal: React.FC = () => {
         description: "I am Arulmozhikumar. Type help for more information",
       }
     ]);
-    const [commandHistory, setCommandHistory] = useState<string[]>([]);
     const inputRef = useRef<HTMLInputElement>(null);   
     useEffect(()=>{
       inputRef.current?.focus();
@@ -25,12 +24,16 @@ const Terminal: React.FC = () => {
       setInput(""); 
     };
 
-    const setCurrentCommand = (command: string) => {
-        setInput(command);
-    }
+    
     const handleCommand = (command: string) => {
-        setCommandHistory(prev => [...prev, command]);
+        
         switch (command) {
+        case "youtube":
+            setHistory(prev => [...prev, {
+                name: "youtube",
+                description: ``,
+            }])
+            break;
         case "whoami":
             setHistory(prev => [...prev, {
                 name: "whoami",
@@ -98,13 +101,7 @@ const Terminal: React.FC = () => {
           <input
             ref={inputRef} 
             value={input}
-            onKeyUp={(e) => {
-              if (e.key === "arrowUp") {
-                e.preventDefault();
-                console.log("hello");
-               setCurrentCommand(commandHistory[commandHistory.length - 1]);
-              }
-            }}
+            
             onChange={(e) => setInput(e.target.value)}
             className="bg-transparent focus:outline-none w-full"
             type="text"
