@@ -1,7 +1,9 @@
+import Terminal from "./components/Terminal"
+
 const App =()=>{
   return (
-    <div className="text-red-500">
-      <h1>Tailwind with React</h1>
+    <div className="w-full h-screen">
+     <Terminal />
     </div>
   )
 }
