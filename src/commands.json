@@ -1,0 +1,30 @@
+[
+  {
+    "name": "whoami",
+    "description": "You're interacting with Arulmozhikumar — a software engineer building software and systems."
+  },
+  {
+    "name": "about",
+    "description": "An Associate Software Engineer at Presidio, passionate about full-stack engineering, cloud architecture, and system design."
+  },
+  {
+    "name": "skills",
+    "type": "triangle"
+  },
+  {
+    "name": "web",
+    "description": "Explore at → https://linktr.ee/arulmozhikumar"
+  },
+  {
+    "name": "date",
+    "dynamic": true
+  },
+  {
+    "name": "help",
+    "dynamic": true
+  },
+  {
+    "name": "clear",
+    "dynamic": true
+  }
+]

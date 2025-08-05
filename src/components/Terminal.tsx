@@ -1,150 +1,125 @@
-import { useState, useRef, useEffect } from "react";
+// src/components/Terminal.tsx
+
+import React, { useState, useEffect, useRef } from 'react';
+import commands from '../commands.json';
+import {
+  SiJavascript,
+  SiHtml5,
+  SiCss3,
+  SiReact,
+  SiNodedotjs,
+  SiMongodb,
+  SiDotnet,
+  SiAngular,
+  SiPostgresql,
+  SiAmazon
+} from 'react-icons/si';
 
 interface Command {
   name: string;
-  description: string;
+  description?: string | React.ReactNode;
+  dynamic?: boolean;
+  type?: string;
 }
 
 const Terminal: React.FC = () => {
-  const [input, setInput] = useState<string>("");
-  const [history, setHistory] = useState<Command[]>([
-    {
-      name: "Hello Human",
-      description: "I am Arulmozhikumar. Type help for more information",
-    },
-  ]);
-  const [commandHistory, setCommandHistory] = useState<string[]>([]);
-  const [historyIndex, setHistoryIndex] = useState<number>(-1); // To track the current position in history
+  const [input, setInput] = useState('');
+  const [history, setHistory] = useState<{ name: string; description?: React.ReactNode }[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowUp") {
-        // Navigate to the previous command
-        if (historyIndex > 0) {
-          setHistoryIndex(historyIndex - 1);
-          setInput(commandHistory[historyIndex - 1]);
-        }
-      } else if (e.key === "ArrowDown") {
-        // Navigate to the next command
-        if (historyIndex < commandHistory.length - 1) {
-          setHistoryIndex(historyIndex + 1);
-          setInput(commandHistory[historyIndex + 1]);
-        } else {
-          setHistoryIndex(commandHistory.length);
-          setInput(""); // Clear input if it's the most recent
-        }
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [historyIndex, commandHistory]);
-
-  const handleCommandSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (input.trim() === "") return; // Prevent empty command submission
-
-    handleCommand(input);
-    setCommandHistory([...commandHistory, input]); // Save the command to history
-    setHistoryIndex(commandHistory.length + 1); // Reset the index to the end of the command history
-    setInput("");
+  const handleDynamicCommand = (name: string) => {
+    switch (name) {
+      case 'date':
+        return new Date().toLocaleString();
+      case 'help':
+        return (
+          <>
+            <p>Available commands:</p>
+            <ul className="list-disc list-inside">
+              {(commands as Command[]).map((cmd) => (
+                <li key={cmd.name}>{cmd.name}</li>
+              ))}
+            </ul>
+          </>
+        );
+      case 'clear':
+        setHistory([]);
+        return null;
+      default:
+        return 'Unknown dynamic command.';
+    }
   };
 
-  const handleCommand = (command: string) => {
-    switch (command) {
-      case "youtube":
-        setHistory((prev) => [
-          ...prev,
-          {
-            name: "youtube",
-            description: ``,
-          },
-        ]);
-        break;
-      case "whoami":
-        setHistory((prev) => [
-          ...prev,
-          {
-            name: "whoami",
-            description: "Arulmozhikumar",
-          },
-        ]);
-        break;
-      case "about":
-        setHistory((prev) => [
-          ...prev,
-          {
-            name: "about",
-            description: "Associate Software Engineer @Presidio",
-          },
-        ]);
-        break;
-      case "projects":
-        setHistory((prev) => [
-          ...prev,
-          {
-            name: "projects",
-            description: "Fullstack Developer",
-          },
-        ]);
-        break;
-      case "date":
-        setHistory((prev) => [
-          ...prev,
-          {
-            name: "date",
-            description: new Date().toString(),
-          },
-        ]);
-        break;
-      case "clear":
-        setHistory([]);
-        break;
-      case "help":
-        setHistory((prev) => [
-          ...prev,
-          {
-            name: "help",
-            description:
-              "Available commands: whoami, about, projects, date, clear, help, web",
-          },
-        ]);
-        break;
-      case "skills":
-        setHistory((prev) => [
-          ...prev,
-          {
-            name: "skills",
-            description:
-              "JavaScript, TypeScript, React, Node.js, PostgreSQL, Git, HTML, CSS",
-          },
-        ]);
-        break;
-      case "web":
-        setHistory((prev) => [
-          ...prev,
-          {
-            name: "web",
-            description: "https://www.arulmozhikumar.online",
-          },
-        ]);
-        break;
-      default:
-        setHistory((prev) => [
-          ...prev,
-          {
-            name: command,
-            description: "Command not found",
-          },
-        ]);
+  const handleCommand = (e: React.FormEvent) => {
+    e.preventDefault();
+    const command = input.trim().toLowerCase();
+    setInput('');
+
+    const match = (commands as Command[]).find(cmd => cmd.name === command);
+
+    if (!match) {
+      setHistory(prev => [...prev, { name: command, description: 'Command not found. Type `help` to see available commands.' }]);
+      return;
     }
+
+    // Handle dynamic commands
+    if (match.dynamic) {
+      const result = handleDynamicCommand(command);
+      if (result !== null) {
+        setHistory(prev => [...prev, { name: command, description: result }]);
+      }
+      return;
+    }
+
+    // Special rendering for triangle layout (skills)
+    if (match.type === 'triangle') {
+      const triangleData = [
+        [<SiJavascript title="JavaScript" key="js" />],
+        [<SiHtml5 title="HTML" key="html" />, <SiCss3 title="CSS" key="css" />],
+        [
+          <SiReact title="React" key="react" />,
+          <SiNodedotjs title="Node.js" key="node" />,
+          <SiMongodb title="MongoDB" key="mongo" />
+        ],
+        [
+          <SiDotnet title="C#" key="csharp" />,
+          <SiAngular title="Angular" key="angular" />,
+          <SiPostgresql title="SQL" key="sql" />,
+          <SiAmazon title="AWS" key="aws" />
+        ]
+      ];
+
+      setHistory(prev => [
+        ...prev,
+        {
+          name: command,
+          description: (
+            <div className="flex flex-col items-center mt-4 gap-2">
+              {triangleData.map((row, rowIndex) => (
+                <div key={rowIndex} className="flex gap-4 justify-center">
+                  {row.map((icon, iconIndex) => (
+                    <div
+                      key={iconIndex}
+                      className="text-3xl hover:scale-125 transition-transform duration-200"
+                    >
+                      {icon}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ),
+        },
+      ]);
+      return;
+    }
+
+    // Default static rendering
+    setHistory(prev => [...prev, { name: command, description: match.description }]);
   };
 
   const handleTerminalClick = () => {
@@ -165,7 +140,7 @@ const Terminal: React.FC = () => {
           <div className="mb-2">{line.description}</div>
         </div>
       ))}
-      <form onSubmit={handleCommandSubmit} className="flex">
+      <form onSubmit={handleCommand} className="flex">
         <p className="mr-2">
           <span className="text-green-300">arul@portfolio</span>:
           <span className="text-blue-500">~</span>$
