@@ -29,6 +29,12 @@ const Terminal: React.FC = () => {
 
   useEffect(() => {
     inputRef.current?.focus();
+     setHistory([
+    {
+      name: 'Hello Human',
+      description: "I'm Arulmozhikumar. Type help for more information."
+    }
+  ]);
   }, []);
 
   const handleDynamicCommand = (name: string) => {
